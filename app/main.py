@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from pymongo import AsyncMongoClient
 
 from app.dependencies import get_settings
 from app.transcripts.router import router as transcripts_router
@@ -8,8 +9,13 @@ from app.transcripts.router import router as transcripts_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    get_settings()  # fail fast if required config (e.g. ANTHROPIC_API_KEY) is missing
+    settings = (
+        get_settings()
+    )  # fail fast if required config (e.g. ANTHROPIC_API_KEY) is missing
+    client = AsyncMongoClient(settings.mongodb_url)
+    app.state.db = client[settings.mongodb_db_name]
     yield
+    await client.close()
 
 
 app = FastAPI(title="Transcript Analysis", lifespan=lifespan)
