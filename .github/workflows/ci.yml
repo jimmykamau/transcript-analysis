@@ -26,4 +26,6 @@ jobs:
           uv run ruff format --check .
 
       - name: Test
+        env:
+          ANTHROPIC_API_KEY: sk-ant-dummy-key-for-testing
         run: uv run pytest -n auto
