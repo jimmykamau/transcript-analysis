@@ -34,7 +34,7 @@ uv run pre-commit install
 
 ## CI
 
-`.github/workflows/ci.yml` runs lint + tests on every push and on PRs targeting `main`, `staging`, or `dev`:
+`.github/workflows/run_tests.yml` runs lint + tests on PRs targeting `main`, `staging`, or `dev`:
 
 ```bash
 uv run ruff check .

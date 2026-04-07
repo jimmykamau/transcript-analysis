@@ -1,11 +1,12 @@
 # Transcript Analysis
 
-Stateless FastAPI service for transcript analysis.
+FastAPI service that analyzes call center transcripts via the Claude API and persists results to MongoDB.
 
 ## Requirements
 
 - Python 3.14+
 - [uv](https://docs.astral.sh/uv/) package manager
+- MongoDB (or use Docker Compose, which includes it)
 
 ## Getting Started
 
@@ -19,14 +20,19 @@ uv run pre-commit install
 # copy environment config and set ANTHROPIC_API_KEY
 cp .env.example .env
 
+# start MongoDB (if not using Docker)
+mongod
+
 # run dev server (port 8000)
 uv run uvicorn app.main:app --reload
 ```
 
 ## Development with Docker
 
+Docker Compose starts both the app and MongoDB:
+
 ```bash
-# start dev server (hot-reload)
+# start dev server + MongoDB (hot-reload)
 docker compose up
 
 # run tests
