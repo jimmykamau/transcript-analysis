@@ -46,7 +46,7 @@ async def analyze(request: TranscriptRequest, settings: SettingsDep, db: DbDep):
     except Exception as err:
         raise HTTPException(status_code=503, detail="Storage unavailable") from err
 
-    return AnalyzeResponse(**analysis.model_dump(), **saved)
+    return AnalyzeResponse(**saved.model_dump())
 
 
 @router.get("/", response_model=list[TranscriptSummary])

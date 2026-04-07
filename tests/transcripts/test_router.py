@@ -50,11 +50,14 @@ async def test_list_transcripts_pagination(client):
 
 
 @pytest.mark.anyio
-async def test_list_transcripts_invalid_limit(client):
+async def test_list_transcripts_invalid_params(client):
     response = await client.get("/transcripts/?limit=0")
     assert response.status_code == 422
 
     response = await client.get("/transcripts/?limit=101")
+    assert response.status_code == 422
+
+    response = await client.get("/transcripts/?skip=-1")
     assert response.status_code == 422
 
 
@@ -105,3 +108,15 @@ async def test_get_transcript_not_found(client):
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Transcript not found"
+
+
+@pytest.mark.anyio
+async def test_get_transcript_storage_failure(client):
+    with patch(
+        "app.transcripts.router.repository.get_transcript_by_id",
+        new=AsyncMock(side_effect=Exception("db down")),
+    ):
+        response = await client.get("/transcripts/507f1f77bcf86cd799439011")
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Storage unavailable"

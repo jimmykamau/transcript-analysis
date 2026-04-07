@@ -111,11 +111,11 @@ Returns the full stored record including the original transcript text.
 
 | Endpoint | Condition | Status | Detail |
 |---|---|---|---|
-| `POST /analyze` | MongoDB write fails | `503 Service Unavailable` | `"Storage unavailable"` |
-| `GET /` | `limit` < 1 or > 100, or `skip` < 0 | `422 Unprocessable Entity` | FastAPI validation error |
-| `GET /` | MongoDB read fails | `503 Service Unavailable` | `"Storage unavailable"` |
-| `GET /{id}` | `id` is not a valid 24-char hex ObjectId | `400 Bad Request` | `"Invalid transcript ID format"` |
-| `GET /{id}` | Valid ObjectId but no matching document | `404 Not Found` | `"Transcript not found"` |
+| `POST /transcripts/analyze` | MongoDB write fails | `503 Service Unavailable` | `"Storage unavailable"` |
+| `GET /transcripts/` | `limit` < 1 or > 100, or `skip` < 0 | `422 Unprocessable Entity` | FastAPI validation error |
+| `GET /transcripts/` | MongoDB read fails | `503 Service Unavailable` | `"Storage unavailable"` |
+| `GET /transcripts/{id}` | `id` is not a valid 24-char hex ObjectId | `400 Bad Request` | `"Invalid transcript ID format"` |
+| `GET /transcripts/{id}` | Valid ObjectId but no matching document | `404 Not Found` | `"Transcript not found"` |
 
 ---
 
@@ -182,5 +182,6 @@ app/transcripts/
 | Get by valid id | `GET /{id}` | Mock `repository.get_transcript_by_id` returning a document | 200 with full document |
 | Get by invalid ObjectId format | `GET /{id}` | No mock needed | 400 `"Invalid transcript ID format"` |
 | Get by valid but missing id | `GET /{id}` | Mock `repository.get_transcript_by_id` returning `None` | 404 `"Transcript not found"` |
+| Storage failure on get | `GET /{id}` | Mock `repository.get_transcript_by_id` raising `Exception` | 503 `"Storage unavailable"` |
 
 MongoDB is never contacted in tests. The `mock_db` autouse fixture in `conftest.py` overrides `get_db`; repository functions are patched per test at `app.transcripts.router.repository.<function>`.

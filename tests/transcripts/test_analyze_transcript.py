@@ -5,6 +5,7 @@ import anthropic
 import pytest
 
 from app.transcripts import services
+from app.transcripts.models import TranscriptDocument
 
 
 @pytest.fixture(autouse=True)
@@ -14,10 +15,15 @@ def clear_client_cache():
     services._get_client.cache_clear()
 
 
-_SAVED = {
-    "id": "507f1f77bcf86cd799439011",
-    "created_at": datetime(2024, 1, 15, 10, 30, 0, tzinfo=UTC),
-}
+_SAVED = TranscriptDocument(
+    id="507f1f77bcf86cd799439011",
+    transcript="Agent: Hello. Customer: Hi, I need help.",
+    qa_score=8,
+    qa_justification="The agent resolved the issue promptly.",
+    summary="Customer contacted support about a password reset. Agent resolved it quickly.",
+    sentiment="positive",
+    created_at=datetime(2024, 1, 15, 10, 30, 0, tzinfo=UTC),
+)
 
 
 @pytest.mark.anyio

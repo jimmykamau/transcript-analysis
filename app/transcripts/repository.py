@@ -11,11 +11,19 @@ def _normalize(doc: dict) -> dict:
     return doc
 
 
-async def save_transcript(db, transcript: str, analysis: TranscriptAnalysis) -> dict:
+async def save_transcript(
+    db, transcript: str, analysis: TranscriptAnalysis
+) -> TranscriptDocument:
     now = datetime.now(UTC)
-    doc = {**analysis.model_dump(), "transcript": transcript, "created_at": now}
+    analysis_data = analysis.model_dump()
+    doc = {**analysis_data, "transcript": transcript, "created_at": now}
     result = await db["transcripts"].insert_one(doc)
-    return {"id": str(result.inserted_id), "created_at": now}
+    return TranscriptDocument(
+        id=str(result.inserted_id),
+        transcript=transcript,
+        created_at=now,
+        **analysis_data,
+    )
 
 
 async def get_transcript_by_id(db, id: str) -> TranscriptDocument | None:
