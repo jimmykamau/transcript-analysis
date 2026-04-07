@@ -1,9 +1,12 @@
-name: CI
+name: Run tests
 
 on:
-  push:
   pull_request:
-    branches: [main, staging, dev]
+    branches: [main, dev, staging]
+    paths-ignore:
+      - "docs/**"
+      - ".agents/**"
+  workflow_dispatch:
 
 jobs:
   test:
@@ -26,4 +29,6 @@ jobs:
           uv run ruff format --check .
 
       - name: Test
+        env:
+          ANTHROPIC_API_KEY: sk-ant-dummy-key-for-testing
         run: uv run pytest -n auto
