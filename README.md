@@ -16,7 +16,7 @@ uv sync
 # install pre-commit hooks
 uv run pre-commit install
 
-# copy environment config
+# copy environment config and set ANTHROPIC_API_KEY
 cp .env.example .env
 
 # run dev server (port 8000)
