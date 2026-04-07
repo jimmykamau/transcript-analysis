@@ -62,7 +62,8 @@ Content-Type: application/json
 | Condition | Status | Detail |
 |---|---|---|
 | Missing or empty `transcript` | `422 Unprocessable Entity` | Pydantic validation error body |
-| Invalid API key / auth failure | `500 Internal Server Error` | `"Service configuration error"` |
+| Missing/invalid `ANTHROPIC_API_KEY` or other config failure | `500 Internal Server Error` | `"Service configuration error"` |
+| Invalid API key / auth failure (Anthropic rejects request) | `500 Internal Server Error` | `"Service configuration error"` |
 | Claude API unreachable / rate-limited (after 3 retries) | `502 Bad Gateway` | `"Upstream API error"` |
 | Unexpected LLM response structure | `500 Internal Server Error` | `"Unexpected response from LLM"` |
 
