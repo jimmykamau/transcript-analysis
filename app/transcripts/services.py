@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 import anthropic
+from pydantic import ValidationError
 
 from app.config import Settings
 from app.transcripts.models import TranscriptAnalysis
@@ -43,4 +44,7 @@ async def analyze_transcript(transcript: str, settings: Settings) -> TranscriptA
     )
     if block is None:
         raise ValueError("Unexpected response from LLM")
-    return TranscriptAnalysis(**block.input)
+    try:
+        return TranscriptAnalysis(**block.input)
+    except ValidationError as err:
+        raise ValueError("Unexpected response from LLM") from err
