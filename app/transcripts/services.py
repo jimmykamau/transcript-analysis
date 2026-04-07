@@ -4,7 +4,7 @@ import anthropic
 from pydantic import ValidationError
 
 from app.config import Settings
-from app.transcripts.models import TranscriptAnalysis
+from app.transcripts.schemas import TranscriptAnalysis
 
 _TOOL = {
     "name": "analyze_transcript",

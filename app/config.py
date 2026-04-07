@@ -9,3 +9,5 @@ class Settings(BaseSettings):
     anthropic_api_key: str
     claude_model: str = "claude-sonnet-4-6"
     claude_max_tokens: int = 1024
+    mongodb_url: str = "mongodb://localhost:27017"
+    mongodb_db_name: str = "transcript_analysis"

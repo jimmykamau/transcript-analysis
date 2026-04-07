@@ -1,8 +1,11 @@
+from unittest.mock import MagicMock
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.dependencies import get_settings
 from app.main import app
+from app.transcripts.router import get_db
 
 
 @pytest.fixture(autouse=True)
@@ -11,6 +14,14 @@ def mock_env(monkeypatch):
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()
+
+
+@pytest.fixture(autouse=True)
+def mock_db():
+    db = MagicMock()
+    app.dependency_overrides[get_db] = lambda: db
+    yield db
+    app.dependency_overrides.pop(get_db, None)
 
 
 @pytest.fixture
