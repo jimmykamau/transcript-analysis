@@ -8,7 +8,7 @@ class TranscriptRequest(BaseModel):
 
 
 class TranscriptAnalysis(BaseModel):
-    qa_score: int
+    qa_score: Annotated[int, Field(ge=1, le=10)]
     qa_justification: str
     summary: str
     sentiment: Literal["positive", "neutral", "negative"]
