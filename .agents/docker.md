@@ -22,10 +22,12 @@ Key env vars set in both Dockerfiles:
 ## docker-compose (dev)
 
 ```bash
-docker compose up                                # start dev server with hot-reload
+docker compose up                                # start app + MongoDB
 docker compose run --rm app uv run pytest        # run tests
 docker compose run --rm app uv run ruff check .  # lint
 ```
+
+Two services: `mongo` (mongo:8, port 27017) and `app`. The app service sets `MONGODB_URL=mongodb://mongo:27017` and declares `depends_on: mongo`.
 
 Source is bind-mounted to `/app`. An anonymous volume at `/app/.venv` prevents the host mount from overwriting the container's installed venv. Env vars load from `.env` via `env_file`.
 
