@@ -21,7 +21,7 @@ class TranscriptSummary(BaseModel):
     sentiment: Literal["positive", "neutral", "negative"]
     summary: str
     created_at: datetime
-    topics: list[str] = []
+    topics: list[str] = Field(default_factory=list)
 
 
 class TranscriptSearchRequest(BaseModel):

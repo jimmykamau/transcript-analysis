@@ -9,7 +9,7 @@ class TranscriptAnalysis(BaseModel):
     qa_justification: str
     summary: str
     sentiment: Literal["positive", "neutral", "negative"]
-    topics: list[str] = []
+    topics: list[str] = Field(default_factory=list)
 
 
 class TranscriptDocument(TranscriptAnalysis):
