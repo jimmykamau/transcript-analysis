@@ -2,8 +2,17 @@ from datetime import UTC, datetime
 
 from bson import ObjectId
 
-from app.transcripts.models import TranscriptDocument
-from app.transcripts.schemas import TranscriptAnalysis, TranscriptSummary
+from app.transcripts.models import TranscriptAnalysis, TranscriptDocument
+from app.transcripts.schemas import TranscriptSummary
+
+_SUMMARY_PROJECTION = {
+    "_id": 1,
+    "qa_score": 1,
+    "sentiment": 1,
+    "summary": 1,
+    "created_at": 1,
+    "topics": 1,
+}
 
 
 def _normalize(doc: dict) -> dict:
@@ -34,11 +43,30 @@ async def get_transcript_by_id(db, id: str) -> TranscriptDocument | None:
 
 
 async def list_transcripts(
-    db, skip: int = 0, limit: int = 20
+    db, skip: int = 0, limit: int = 20, topic: str | None = None
+) -> list[TranscriptSummary]:
+    query = {"topics": topic} if topic is not None else {}
+    cursor = (
+        db["transcripts"]
+        .find(query, _SUMMARY_PROJECTION)
+        .sort("created_at", -1)
+        .skip(skip)
+        .limit(limit)
+    )
+    return [TranscriptSummary(**_normalize(doc)) async for doc in cursor]
+
+
+async def list_topics(db) -> list[str]:
+    results = await db["transcripts"].distinct("topics")
+    return [t for t in results if t is not None]
+
+
+async def search_by_topics(
+    db, topics: list[str], skip: int = 0, limit: int = 20
 ) -> list[TranscriptSummary]:
     cursor = (
         db["transcripts"]
-        .find({}, {"_id": 1, "qa_score": 1, "sentiment": 1, "created_at": 1})
+        .find({"topics": {"$in": topics}}, _SUMMARY_PROJECTION)
         .sort("created_at", -1)
         .skip(skip)
         .limit(limit)
