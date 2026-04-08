@@ -68,11 +68,28 @@ async def search_transcripts(
 ):
     try:
         available_topics = await repository.list_topics(db)
+    except Exception as err:
+        raise HTTPException(status_code=503, detail="Storage unavailable") from err
+
+    try:
         matched_topics = await services.interpret_query(
             request.query, available_topics, settings
         )
-        if not matched_topics:
-            return []
+    except anthropic.AuthenticationError as err:
+        raise HTTPException(
+            status_code=500, detail="Service configuration error"
+        ) from err
+    except (anthropic.APIStatusError, anthropic.APIConnectionError) as err:
+        raise HTTPException(status_code=502, detail="Upstream API error") from err
+    except ValueError as err:
+        raise HTTPException(
+            status_code=500, detail="Unexpected response from LLM"
+        ) from err
+
+    if not matched_topics:
+        return []
+
+    try:
         return await repository.search_by_topics(
             db, matched_topics, skip=skip, limit=limit
         )
