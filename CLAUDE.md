@@ -31,5 +31,7 @@ Copy `.env.example` to `.env` and set `ANTHROPIC_API_KEY`.
 - [Testing](.agents/testing.md) — async test pattern, Claude API mock, repository mock
 - [Style guide](.agents/style-guide.md) — ruff rules, pre-commit, CI
 - [Docker](.agents/docker.md) — Dockerfile, docker-compose with MongoDB
+- [API design](.agents/api-design.md) — error codes, pagination, Claude API patterns
 - [API: transcripts](docs/specs/analyze-transcript.md) — `POST /transcripts/analyze`
 - [API: persistence](docs/specs/persistence.md) — `GET /transcripts/`, `GET /transcripts/{id}`
+- [API: topic search](docs/specs/topic-search.md) — `GET /transcripts/topics`, `POST /transcripts/search`

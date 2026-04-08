@@ -167,7 +167,7 @@ New slugs may appear organically as Claude describes novel call themes.
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
-| `CLAUDE_SEARCH_MODEL` | no | `claude-haiku-4-5-20251001` | Model used for `interpret_query` (the slug-mapping call). Separate from `CLAUDE_MODEL` so a cheaper/faster model can be used for search without affecting analysis quality. |
+| `CLAUDE_SEARCH_MODEL` | no | `claude-haiku-4-5` | Model used for `interpret_query` (the slug-mapping call). Separate from `CLAUDE_MODEL` so a cheaper/faster model can be used for search without affecting analysis quality. |
 
 `ANTHROPIC_API_KEY`, `CLAUDE_MODEL`, and `CLAUDE_MAX_TOKENS` are unchanged.
 
