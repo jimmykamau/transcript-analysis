@@ -1,0 +1,13 @@
+# Responses to written questions from the technical challenge
+
+## Question 1 — Production Incident
+
+First, I would check the logs for the endpoint to see if there are any clues about why the QA score is `null`. I would look for any recent changes in the code that could have affected the score calculation or data handling. If the logs don't provide enough information, I would add additional logging around the QA score generation to capture the inputs and outputs of that process.
+Next, I would review the code that processes the transcript and generates the QA score. I would check for any edge cases or conditions that could lead to a `null` score, such as missing data, unexpected input formats, or issues with the Claude API response. I would also verify that the database schema and data types are correct and that there are no issues with how the score is stored or retrieved.
+If I identify a potential issue, I would create a fix and deploy it to production. If the issue is not immediately clear, I would consider rolling back to the previous version of the endpoint while I investigate further to minimize the impact on users. Throughout the process, I would communicate with the team and stakeholders about the issue, the steps being taken to resolve it, and any expected timelines for a fix.
+
+## Question 2 — Ambiguous Requirements
+
+When faced with ambiguous requirements, my first step is to seek clarification from the stakeholders or product manager. I would ask specific questions to understand the goals, constraints, and priorities of the project. For example, I might ask about the expected user experience, performance requirements, and any edge cases that need to be handled.
+Once I have a clearer understanding of the requirements, I would start by building a simple prototype that allows users to [search through transcripts by topic](https://github.com/jimmykamau/transcript-analysis/blob/dev/docs/specs/topic-search.md). I would focus on creating a basic search functionality that can filter transcripts based on predefined topics, such as "apology" or "pricing discussion." This would involve [setting up a database schema](https://github.com/jimmykamau/transcript-analysis/blob/staging/docs/specs/persistence.md) to store transcripts and their associated topics, as well as implementing a search endpoint that can query this data.
+I would prioritize building a minimum viable product (MVP) that can be iteratively improved based on user feedback. This approach allows me to quickly validate assumptions and make adjustments as needed. I would also ensure that the code is well-structured and maintainable, so that additional features or refinements can be added in the future without significant refactoring.
