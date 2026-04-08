@@ -20,6 +20,9 @@ _SYSTEM = (
     "password_reset, pricing, refund, technical_issue, wait_time) identifying key themes."
 )
 
+# Topic mapping only returns a short slug list, so 256 tokens is sufficient.
+_SEARCH_MAX_TOKENS = 256
+
 _SEARCH_TOOL = {
     "name": "map_topics",
     "description": "Select topic slugs from the available list that match the natural-language query.",
@@ -37,7 +40,7 @@ _SEARCH_TOOL = {
 }
 
 
-@lru_cache
+@lru_cache  # reuse the same client instance per API key to avoid re-creating connections
 def _get_client(api_key: str) -> anthropic.AsyncAnthropic:
     return anthropic.AsyncAnthropic(api_key=api_key, max_retries=3)
 
@@ -82,7 +85,7 @@ async def interpret_query(
     )
     response = await client.messages.create(
         model=settings.claude_search_model,
-        max_tokens=256,
+        max_tokens=_SEARCH_MAX_TOKENS,
         system=system,
         tools=[_SEARCH_TOOL],
         tool_choice={"type": "tool", "name": _SEARCH_TOOL["name"]},
@@ -97,6 +100,7 @@ async def interpret_query(
         None,
     )
     if block is None:
-        return []
+        raise ValueError("Unexpected response from LLM")
     topics = block.input.get("topics", [])
+    # Filter to only slugs from the provided list — guards against model hallucination.
     return [t for t in topics if t in available_topics]
