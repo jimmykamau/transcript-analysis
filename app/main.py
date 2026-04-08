@@ -12,8 +12,10 @@ async def lifespan(app: FastAPI):
     settings = (
         get_settings()
     )  # fail fast if required config (e.g. ANTHROPIC_API_KEY) is missing
+    # tz_aware=True makes pymongo return timezone-aware datetimes (UTC) instead of naive ones.
     client = AsyncMongoClient(settings.mongodb_url, tz_aware=True)
     app.state.db = client[settings.mongodb_db_name]
+    await app.state.db["transcripts"].create_index("topics")
     yield
     await client.close()
 

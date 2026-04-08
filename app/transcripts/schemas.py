@@ -3,18 +3,11 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
-from app.transcripts.models import TranscriptDocument
+from app.transcripts.models import TranscriptAnalysis
 
 
 class TranscriptRequest(BaseModel):
     transcript: Annotated[str, Field(min_length=1)]
-
-
-class TranscriptAnalysis(BaseModel):
-    qa_score: Annotated[int, Field(ge=1, le=10)]
-    qa_justification: str
-    summary: str
-    sentiment: Literal["positive", "neutral", "negative"]
 
 
 class AnalyzeResponse(TranscriptAnalysis):
@@ -26,8 +19,10 @@ class TranscriptSummary(BaseModel):
     id: str
     qa_score: Annotated[int, Field(ge=1, le=10)]
     sentiment: Literal["positive", "neutral", "negative"]
+    summary: str
     created_at: datetime
+    topics: list[str] = Field(default_factory=list)
 
 
-class TranscriptDetail(TranscriptDocument):
-    pass
+class TranscriptSearchRequest(BaseModel):
+    query: Annotated[str, Field(min_length=1)]

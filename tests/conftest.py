@@ -11,6 +11,8 @@ from app.transcripts.router import get_db
 @pytest.fixture(autouse=True)
 def mock_env(monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    # Clear before: prevent a cached real-key instance from bleeding into this test.
+    # Clear after: prevent the test key from contaminating subsequent tests.
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()

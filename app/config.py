@@ -11,3 +11,5 @@ class Settings(BaseSettings):
     claude_max_tokens: int = 1024
     mongodb_url: str = "mongodb://localhost:27017"
     mongodb_db_name: str = "transcript_analysis"
+    # Lighter model used for topic mapping (faster and cheaper than the main analysis model).
+    claude_search_model: str = "claude-haiku-4-5"
