@@ -25,6 +25,17 @@ _SAVED = TranscriptDocument(
     created_at=datetime(2024, 1, 15, 10, 30, 0, tzinfo=UTC),
 )
 
+_SAVED_WITH_TOPICS = TranscriptDocument(
+    id="507f1f77bcf86cd799439011",
+    transcript="Agent: Hello. Customer: Hi.",
+    qa_score=8,
+    qa_justification="The agent resolved the issue promptly.",
+    summary="Customer contacted support about a password reset.",
+    sentiment="positive",
+    created_at=datetime(2024, 1, 15, 10, 30, 0, tzinfo=UTC),
+    topics=["password_reset"],
+)
+
 
 @pytest.mark.anyio
 async def test_analyze_transcript_success(client):
@@ -67,6 +78,44 @@ async def test_analyze_transcript_success(client):
     assert "summary" in data
     assert data["id"] == "507f1f77bcf86cd799439011"
     assert "created_at" in data
+
+
+@pytest.mark.anyio
+async def test_analyze_transcript_includes_topics(client):
+    mock_block = MagicMock()
+    mock_block.type = "tool_use"
+    mock_block.name = "analyze_transcript"
+    mock_block.input = {
+        "qa_score": 8,
+        "qa_justification": "The agent resolved the issue promptly.",
+        "summary": "Customer contacted support about a password reset.",
+        "sentiment": "positive",
+        "topics": ["password_reset"],
+    }
+
+    mock_response = MagicMock()
+    mock_response.content = [mock_block]
+
+    mock_instance = AsyncMock()
+    mock_instance.messages.create = AsyncMock(return_value=mock_response)
+
+    with (
+        patch(
+            "app.transcripts.services.anthropic.AsyncAnthropic",
+            return_value=mock_instance,
+        ),
+        patch(
+            "app.transcripts.router.repository.save_transcript",
+            new=AsyncMock(return_value=_SAVED_WITH_TOPICS),
+        ),
+    ):
+        response = await client.post(
+            "/transcripts/analyze",
+            json={"transcript": "Agent: Hello. Customer: Hi."},
+        )
+
+    assert response.status_code == 200
+    assert response.json()["topics"] == ["password_reset"]
 
 
 @pytest.mark.anyio
