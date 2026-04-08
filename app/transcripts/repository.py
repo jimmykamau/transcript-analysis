@@ -5,6 +5,7 @@ from bson import ObjectId
 from app.transcripts.models import TranscriptAnalysis, TranscriptDocument
 from app.transcripts.schemas import TranscriptSummary
 
+# Fields returned for list/search endpoints — excludes the full transcript text to keep responses light.
 _SUMMARY_PROJECTION = {
     "_id": 1,
     "qa_score": 1,
@@ -16,6 +17,7 @@ _SUMMARY_PROJECTION = {
 
 
 def _normalize(doc: dict) -> dict:
+    # MongoDB uses "_id" (ObjectId); rename and stringify it to match our schema's "id" field.
     doc["id"] = str(doc.pop("_id"))
     return doc
 
