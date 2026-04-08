@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
+import anthropic
 import pytest
 
 _SUMMARIES = [
@@ -229,3 +230,83 @@ async def test_search_no_match(client):
 async def test_search_empty_query(client):
     response = await client.post("/transcripts/search", json={"query": ""})
     assert response.status_code == 422
+
+
+@pytest.mark.anyio
+async def test_search_list_topics_storage_failure(client):
+    with patch(
+        "app.transcripts.router.repository.list_topics",
+        new=AsyncMock(side_effect=Exception("db down")),
+    ):
+        response = await client.post(
+            "/transcripts/search", json={"query": "apology calls"}
+        )
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Storage unavailable"
+
+
+@pytest.mark.anyio
+async def test_search_interpret_query_api_failure(client):
+    with (
+        patch(
+            "app.transcripts.router.repository.list_topics",
+            new=AsyncMock(return_value=["apology"]),
+        ),
+        patch(
+            "app.transcripts.router.services.interpret_query",
+            new=AsyncMock(
+                side_effect=anthropic.APIStatusError(
+                    "rate limited",
+                    response=MagicMock(status_code=429, headers={}),
+                    body={},
+                )
+            ),
+        ),
+    ):
+        response = await client.post(
+            "/transcripts/search", json={"query": "apology calls"}
+        )
+    assert response.status_code == 502
+    assert response.json()["detail"] == "Upstream API error"
+
+
+@pytest.mark.anyio
+async def test_search_interpret_query_value_error(client):
+    with (
+        patch(
+            "app.transcripts.router.repository.list_topics",
+            new=AsyncMock(return_value=["apology"]),
+        ),
+        patch(
+            "app.transcripts.router.services.interpret_query",
+            new=AsyncMock(side_effect=ValueError("Unexpected response from LLM")),
+        ),
+    ):
+        response = await client.post(
+            "/transcripts/search", json={"query": "apology calls"}
+        )
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Unexpected response from LLM"
+
+
+@pytest.mark.anyio
+async def test_search_search_by_topics_storage_failure(client):
+    with (
+        patch(
+            "app.transcripts.router.repository.list_topics",
+            new=AsyncMock(return_value=["apology"]),
+        ),
+        patch(
+            "app.transcripts.router.services.interpret_query",
+            new=AsyncMock(return_value=["apology"]),
+        ),
+        patch(
+            "app.transcripts.router.repository.search_by_topics",
+            new=AsyncMock(side_effect=Exception("db down")),
+        ),
+    ):
+        response = await client.post(
+            "/transcripts/search", json={"query": "apology calls"}
+        )
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Storage unavailable"
