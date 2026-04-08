@@ -14,6 +14,7 @@ async def lifespan(app: FastAPI):
     )  # fail fast if required config (e.g. ANTHROPIC_API_KEY) is missing
     client = AsyncMongoClient(settings.mongodb_url, tz_aware=True)
     app.state.db = client[settings.mongodb_db_name]
+    await app.state.db["transcripts"].create_index("topics")
     yield
     await client.close()
 
